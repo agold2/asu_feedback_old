@@ -46,17 +46,9 @@ function feedback_schema() {
 }
 
 /**
- * Implementation of hook_install().
- */
-function feedback_install() {
-  drupal_install_schema('feedback');
-}
-
-/**
  * Implementation of hook_uninstall().
  */
 function feedback_uninstall() {
-  drupal_uninstall_schema('feedback');
   db_query("DELETE FROM {variable} WHERE name LIKE 'feedback_%%'");
 }
 

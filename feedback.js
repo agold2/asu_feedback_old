@@ -1,4 +1,5 @@
 // $Id$
+(function ($) {
 
 /**
  * Attach collapse behavior to the feedback form block (once).
@@ -65,8 +66,8 @@ Drupal.feedbackFormSubmit = function(form) {
   return false;
 }
 
-if (Drupal.jsEnabled) {
-  $(document).ready(function() {
-    Drupal.feedbackSetup();
-  });
-}
+$(document).ready(function() {
+  Drupal.feedbackSetup();
+});
+
+})(jQuery)

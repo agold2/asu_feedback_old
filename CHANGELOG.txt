@@ -4,6 +4,11 @@ Feedback x.x-x.x, xxxx-xx-xx
 ----------------------------
 
 
+Feedback 7.x-2.x, xxxx-xx-xx
+----------------------------
+by sun: Ported to Drupal 7.
+
+
 Feedback 6.x-2.x, xxxx-xx-xx
 ----------------------------
 #341667 by sun: Fixed IE6 does not support position: fixed.
