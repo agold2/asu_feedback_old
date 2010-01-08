@@ -6,6 +6,7 @@ Feedback x.x-x.x, xxxx-xx-xx
 
 Feedback 7.x-2.x, xxxx-xx-xx
 ----------------------------
+by sun: Fixed JS behaviors are executed more than once.
 #636158 by smk-ka: Changed administrative page callbacks to be located in admin
   include.
 #370223 by sun, Jeff Burnz: Fixed compatibility with custom block markup.
