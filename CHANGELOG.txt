@@ -6,6 +6,7 @@ Feedback x.x-x.x, xxxx-xx-xx
 
 Feedback 7.x-2.x, xxxx-xx-xx
 ----------------------------
+#690856 by sun (SA-2010-011): Fixed un-escaped user agent string.
 by sun: Fixed JS behaviors are executed more than once.
 #636158 by smk-ka: Changed administrative page callbacks to be located in admin
   include.
