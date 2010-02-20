@@ -147,6 +147,7 @@ function feedback_form($form, &$form_state) {
   $form['message'] = array(
     '#type' => 'textarea',
     '#attributes' => array('class' => array('feedback-message')),
+    '#cols' => 20,
     '#title' => t('Message'),
     '#required' => TRUE,
     '#wysiwyg' => FALSE,
