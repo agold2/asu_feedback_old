@@ -6,16 +6,17 @@ Feedback x.x-x.x, xxxx-xx-xx
 
 Feedback 7.x-2.x, xxxx-xx-xx
 ----------------------------
+by sun: Ported to Drupal 7.
+#688306 by Berdir: Fixed compatibility with PHP 5.3.
+
+
+Feedback 6.x-2.1, 2010-01-27
+----------------------------
 #690856 by sun (SA-2010-011): Fixed un-escaped user agent string.
 by sun: Fixed JS behaviors are executed more than once.
 #636158 by smk-ka: Changed administrative page callbacks to be located in admin
   include.
 #370223 by sun, Jeff Burnz: Fixed compatibility with custom block markup.
-by sun: Ported to Drupal 7.
-
-
-Feedback 6.x-2.x, xxxx-xx-xx
-----------------------------
 #341667 by sun: Fixed IE6 does not support position: fixed.
 #409590 by sun: Added storage and output of absolute URL for feedback messages.
 #378878 by jcruz, sun: Added display of useragent if Browscap is not installed.
