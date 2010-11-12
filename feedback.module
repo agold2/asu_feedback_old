@@ -28,7 +28,7 @@ function feedback_permission() {
 function feedback_theme() {
   return array(
     'feedback_admin_view_form' => array(
-      'arguments' => array('form' => array()),
+      'render element' => 'form',
     ),
   );
 }
@@ -60,9 +60,9 @@ function feedback_init() {
 }
 
 /**
- * Implementation of hook_block_list().
+ * Implementation of hook_block_info().
  */
-function feedback_block_list() {
+function feedback_block_info() {
   $blocks['form'] = array(
     'info' => t('Feedback form'),
   );
@@ -134,7 +134,7 @@ function feedback_form($form, &$form_state) {
     if ($feedbacks) {
       $rows = '';
       foreach ($feedbacks as $feedback) {
-        $rows .= '<div class="feedback-submitted">'. theme('username', $feedback) .' '. format_date($feedback->timestamp, 'small') .':</div>';
+        $rows .= '<div class="feedback-submitted">' . format_username($feedback) . ' ' . format_date($feedback->timestamp, 'small') . ':</div>';
         $rows .= '<div class="feedback-body">'. feedback_format_message($feedback) .'</div>';
       }
       $form['messages'] = array(

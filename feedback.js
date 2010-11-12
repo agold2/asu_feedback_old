@@ -4,42 +4,46 @@
 /**
  * Attach auto-submit to admin view form.
  */
-Drupal.behaviors.feedbackAdminForm = function (context) {
-  $('#feedback-admin-view-form', context).once('feedback-processed', function () {
-    $(this).find('fieldset.feedback-messages :input[type="checkbox"]').click(function () {
-      this.form.submit();
+Drupal.behaviors.feedbackAdminForm = {
+  attach: function (context) {
+    $('#feedback-admin-view-form', context).once('feedback', function () {
+      $(this).find('fieldset.feedback-messages :input[type="checkbox"]').click(function () {
+        this.form.submit();
+      });
     });
-  });
+  }
 };
 
 /**
  * Attach collapse behavior to the feedback form block.
  */
-Drupal.behaviors.feedbackForm = function (context) {
-  $('#block-feedback-form', context).once('feedback-processed', function () {
-    var $block = $(this);
-    $block.find('span.feedback-link')
-      .prepend('<span id="feedback-form-toggle">[ + ]</span> ')
-      .css('cursor', 'pointer')
-      .toggle(function () {
-          Drupal.feedbackFormToggle($block, false);
-        },
-        function() {
-          Drupal.feedbackFormToggle($block, true);
-        }
-      );
-    $block.find('form').hide()
-      .find(':input[name="ajax"]').val(1).end()
-      .submit(function() {
-        // Toggle throbber/button.
-        $('#feedback-throbber', this).addClass('throbbing');
-        $('#feedback-submit', this).fadeOut('fast', function () {
-          Drupal.feedbackFormSubmit($(this).parents('form'));
+Drupal.behaviors.feedbackForm = {
+  attach: function (context) {
+    $('#block-feedback-form', context).once('feedback', function () {
+      var $block = $(this);
+      $block.find('span.feedback-link')
+        .prepend('<span id="feedback-form-toggle">[ + ]</span> ')
+        .css('cursor', 'pointer')
+        .toggle(function () {
+            Drupal.feedbackFormToggle($block, false);
+          },
+          function() {
+            Drupal.feedbackFormToggle($block, true);
+          }
+        );
+      $block.find('form').hide()
+        .find(':input[name="ajax"]').val(1).end()
+        .submit(function() {
+          // Toggle throbber/button.
+          $('#feedback-throbber', this).addClass('throbbing');
+          $('#feedback-submit', this).fadeOut('fast', function () {
+            Drupal.feedbackFormSubmit($(this).parents('form'));
+          });
+          return false;
         });
-        return false;
-      });
-    $block.show();
-  });
+      $block.show();
+    });
+  }
 };
 
 /**

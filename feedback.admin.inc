@@ -56,7 +56,7 @@ function feedback_admin_view_form($form, &$form_state) {
       );
       $form['feedback-messages'][$status][$fid]['location'] = array('#markup' => l(truncate_utf8($entry->location, 32, FALSE, TRUE), $entry->url));
       $form['feedback-messages'][$status][$fid]['date'] = array('#markup' => format_date($entry->timestamp, 'small'));
-      $form['feedback-messages'][$status][$fid]['user'] = array('#markup' => theme('username', $entry));
+      $form['feedback-messages'][$status][$fid]['user'] = array('#markup' => format_username($entry));
       $form['feedback-messages'][$status][$fid]['message'] = array('#markup' => feedback_format_message($entry));
     }
   }
@@ -67,7 +67,8 @@ function feedback_admin_view_form($form, &$form_state) {
 /**
  * Output a sortable table containing all feedback entries.
  */
-function theme_feedback_admin_view_form($form) {
+function theme_feedback_admin_view_form($variables) {
+  $form = $variables['form'];
   $output = '';
   foreach (element_children($form['feedback-messages']) as $status) {
     $item = &$form['feedback-messages'][$status];
@@ -94,7 +95,8 @@ function theme_feedback_admin_view_form($form) {
     }
     // Inject the table.
     $item['messages'] = array(
-      '#markup' => theme('table', $form['#feedback_header'], $rows) . theme('pager', array(), $status),
+      '#markup' => theme('table', array('header' => $form['#feedback_header'], 'rows' => $rows)),
+      '#suffix' => theme('pager', array('element' => $status)),
       '#weight' => -1,
     );
     // Render the fieldset.
