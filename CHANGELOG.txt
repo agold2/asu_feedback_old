@@ -9,6 +9,7 @@ by sun: Ported to Drupal 7.
 
 Feedback 6.x-2.x, xxxx-xx-xx
 ----------------------------
+#730582 by q0rban, Michel Poulain, sun: Fixed styling in WebKit browsers.
 #387818 by antgiant: Fixed width of feedback textarea.
 #688306 by Berdir: Fixed compatibility with PHP 5.3.
 

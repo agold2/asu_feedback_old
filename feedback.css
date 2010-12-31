@@ -43,6 +43,10 @@
   padding: 6px;
   background-color: #fff;
   opacity: 0.9;
+  max-width: 200px;
+}
+/* IE6 doesn't support max-width. */
+* html #block-feedback-form form {
   width: 200px;
 }
 #block-feedback-form .feedback-help {
