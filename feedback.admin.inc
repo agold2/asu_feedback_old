@@ -33,14 +33,12 @@ function feedback_admin_view_form($form, &$form_state) {
   $query = db_select('feedback', 'f')->extend('PagerDefault')->extend('TableSort');
   $query->join('users', 'u', 'f.uid = u.uid');
   $query->fields('f')
-    ->fields('u', array('name'))
     ->limit(50);
   foreach (array(0, 1) as $status) {
     $status_query = clone $query;
-    $result = $status_query->element($status)
+    $fids = $status_query->element($status)
       ->condition('f.status', $status)
-      ->execute()->fetchAllAssoc('fid');
-
+      ->execute()->fetchCol();
     $form['feedback-messages'][$status] = array(
       '#type' => 'fieldset',
       '#title' => $status_headings[$status],
@@ -48,16 +46,19 @@ function feedback_admin_view_form($form, &$form_state) {
       '#collapsed' => $status,
       '#attributes' => array('class' => array('feedback-messages')),
     );
-    foreach ($result as $fid => $entry) {
-      $form['feedback-messages'][$status][$fid] = array(
-        '#type' => 'checkbox',
-        '#return_value' => 1,
-        '#default_value' => FALSE,
-      );
-      $form['feedback-messages'][$status][$fid]['location'] = array('#markup' => l(truncate_utf8($entry->location, 32, FALSE, TRUE), $entry->url));
-      $form['feedback-messages'][$status][$fid]['date'] = array('#markup' => format_date($entry->timestamp, 'small'));
-      $form['feedback-messages'][$status][$fid]['user'] = array('#markup' => format_username($entry));
-      $form['feedback-messages'][$status][$fid]['message'] = array('#markup' => feedback_format_message($entry));
+    if (!empty($fids)) {
+      $entries = feedback_load_multiple($fids);
+      foreach ($entries as $fid => $entry) {
+        $form['feedback-messages'][$status][$fid] = array(
+          '#type' => 'checkbox',
+          '#return_value' => 1,
+          '#default_value' => FALSE,
+        );
+        $form['feedback-messages'][$status][$fid]['location'] = array('#markup' => l(truncate_utf8($entry->location, 32, FALSE, TRUE), $entry->url));
+        $form['feedback-messages'][$status][$fid]['date'] = array('#markup' => format_date($entry->timestamp, 'small'));
+        $form['feedback-messages'][$status][$fid]['user'] = array('#markup' => format_username($entry));
+        $form['feedback-messages'][$status][$fid]['message'] = array('#markup' => feedback_format_message($entry));
+      }
     }
   }
   $form['submit'] = array('#type' => 'submit', '#value' => t('Submit'));
@@ -113,21 +114,15 @@ function theme_feedback_admin_view_form($variables) {
 function feedback_admin_view_form_submit($form, &$form_state) {
   $update = array();
   // Determine feedback entries to update.
-  foreach ($form_state['values']['feedback-messages'] as $status => $entries) {
-    $entries = array_filter($entries);
-    foreach ($entries as $fid => $value) {
-      // Lame for now. :(
-      $update[$fid] = ($status == 0 ? 1 : 0);
+  foreach ($form_state['values']['feedback-messages'] as $status => $values) {
+    $values = array_filter($values);
+    if (!empty($values)) {
+      $entries = feedback_load_multiple(array_keys($values));
+      foreach ($entries as $fid => $entry) {
+        $entry->status = ($status == 0 ? 1 : 0);
+        feedback_save($entry);
+      }
     }
-  }
-  // Update status of entries in database.
-  foreach ($update as $fid => $value) {
-    db_update('feedback')
-      ->fields(array(
-        'status' => $value,
-      ))
-      ->condition('fid', $fid)
-      ->execute();
   }
 }
 

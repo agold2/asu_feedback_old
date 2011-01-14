@@ -126,10 +126,10 @@ function feedback_form($form, &$form_state) {
   );
   if (user_access('view feedback messages')) {
     if (arg(0) != 'node') {
-      $feedbacks = feedback_load(array('f.status' => 0, 'f.location_masked' => feedback_mask_path($_GET['q'])));
+      $feedbacks = feedback_load_multiple(array(), array('f.status' => 0, 'f.location_masked' => feedback_mask_path($_GET['q'])));
     }
     else {
-      $feedbacks = feedback_load(array('f.status' => 0, 'f.location' => $_GET['q']));
+      $feedbacks = feedback_load_multiple(array(), array('f.status' => 0, 'f.location' => $_GET['q']));
     }
     if ($feedbacks) {
       $rows = '';
@@ -164,7 +164,10 @@ function feedback_form($form, &$form_state) {
 }
 
 function feedback_form_submit($form, &$form_state) {
-  feedback_add_entry($form_state['values']['message'], $form_state['values']['location']);
+  $entry = new stdClass();
+  $entry->message = $form_state['values']['message'];
+  $entry->location = $form_state['values']['location'];
+  feedback_save($entry);
   $message = t('Thanks for your feedback!');
   if ($form_state['values']['ajax']) {
     drupal_json_output(array('message' => $message));
@@ -197,23 +200,118 @@ function feedback_format_message($entry) {
 }
 
 /**
- * Load feedback entries from the database.
+ * Loads a feedback entry object.
  *
- * @param $conditions
- *   A keyed array of optional query conditions.
+ * @param $fid
+ *   Integer specifying the feedback ID to load.
+ *
+ * @return
+ *   A loaded feedback entry object upon successful load, or FALSE if the entry
+ *   cannot be loaded.
+ *
+ * @see feedback_load_multiple()
  */
-function feedback_load($conditions) {
+function feedback_load($fid) {
+  $entries = feedback_load_multiple(array($fid));
+  return (isset($entries[$fid]) ? $entries[$fid] : FALSE);
+}
+
+/**
+ * Loads feedback entries from the database.
+ *
+ * @param $fids
+ *   An array of feedback entry IDs.
+ * @param $conditions
+ *   An associative array of conditions on the {feedback} table, where the keys
+ *   are the database fields and the values are the values those fields
+ *   must have.
+ *
+ * @return
+ *   An array of feedback entry objects indexed by fid.
+ */
+function feedback_load_multiple($fids = array(), $conditions = array()) {
   $query = db_select('feedback', 'f')->fields('f');
   $query->join('users', 'u', 'f.uid = u.uid');
   $query->fields('u', array('name'));
 
+  if (!empty($fids)) {
+    $query->condition('fid', $fids, 'IN');
+  }
   if (!empty($conditions)) {
     foreach ($conditions as $key => $value) {
       $query->condition($key, $value);
     }
   }
   $entries = $query->execute()->fetchAllAssoc('fid');
+  module_invoke_all('feedback_load', $entries);
   return $entries;
+}
+
+/**
+ * Saves changes to a feedback entry or adds a new feedback entry.
+ *
+ * @param $entry
+ *   The feedback entry object to modify or add. If $entry->fid is omitted, a
+ *   new entry will be added.
+ *
+ * @see hook_feedback_insert()
+ * @see hook_feedback_update()
+ */
+function feedback_save($entry) {
+  global $user;
+
+  if (empty($entry->fid)) {
+    if (!isset($entry->uid)) {
+      $entry->uid = $user->uid;
+    }
+    $entry->message = trim($entry->message);
+    if (!isset($entry->location_masked)) {
+      $entry->location_masked = feedback_mask_path($entry->location);
+    }
+    if (!isset($entry->url)) {
+      $entry->url = url($entry->location, array('absolute' => TRUE));
+    }
+    if (!isset($entry->timestamp)) {
+      $entry->timestamp = REQUEST_TIME;
+    }
+    if (!isset($entry->useragent)) {
+      $entry->useragent = $_SERVER['HTTP_USER_AGENT'];
+    }
+    drupal_write_record('feedback', $entry);
+    module_invoke_all('feedback_insert', $entry);
+  }
+  else {
+    drupal_write_record('feedback', $entry, 'fid');
+    module_invoke_all('feedback_update', $entry);
+  }
+}
+
+/**
+ * Deletes a feedback entry.
+ *
+ * @param $fid
+ *   A feedback entry ID.
+ */
+function feedback_delete() {
+  feedback_delete_multiple(array($fid));
+}
+
+/**
+ * Deletes multiple feedback entries.
+ *
+ * @param $fids
+ *   An array of feedback entry IDs.
+ */
+function feedback_delete_multiple($fids) {
+  if (!empty($fids)) {
+    $entries = feedback_load_multiple($fids);
+    foreach ($entries as $fid => $entry) {
+      module_invoke_all('feedback_delete', $entry);
+    }
+    db_delete('feedback')
+      ->condition('fid', $fids, 'IN')
+      ->execute();
+  }
 }
 
 /**
@@ -232,31 +330,7 @@ function feedback_mask_path($path) {
 }
 
 /**
- * Store a new feedback entry in the database.
- *
- * @param string $message
- *   A feedback message text entered by an user.
- * @param string $location
- *   The path on which the feedback message was entered.
- */
-function feedback_add_entry($message, $location) {
-  global $user;
-
-  return db_insert('feedback')
-    ->fields(array(
-      'uid' => $user->uid,
-      'message' => trim($message),
-      'location' => $location,
-      'location_masked' => feedback_mask_path($location),
-      'url' => url($location, array('absolute' => TRUE)),
-      'timestamp' => REQUEST_TIME,
-      'useragent' => $_SERVER['HTTP_USER_AGENT'],
-    ))
-    ->execute();
-}
-
-/**
- * Implementation of hook_user_cancel().
+ * Implements hook_user_cancel().
  */
 function feedback_user_cancel($edit, $account, $method) {
   switch ($method) {
@@ -266,12 +340,14 @@ function feedback_user_cancel($edit, $account, $method) {
         ->condition('uid', $account->uid)
         ->execute();
       break;
-
-    case 'user_cancel_delete':
-      db_delete('feedback')
-        ->condition('uid', $account->uid)
-        ->execute();
-      break;
   }
+}
+
+/**
+ * Implements hook_user_delete().
+ */
+function feedback_user_delete($account) {
+  $fids = db_query('SELECT fid FROM {feedback} WHERE uid = :uid', array(':uid' => $account->uid))->fetchCol();
+  feedback_delete_multiple($fids);
 }
 

@@ -2,6 +2,7 @@
 
 Feedback 7.x-2.x, xxxx-xx-xx
 ----------------------------
+#402438 by Jody Lynn, sun: Added proper CRUD API functions and hooks.
 by sun: Added basic tests.
 #1011152 by sun, Jody Lynn: Removed translations directory.
 #961674 by pmorel, sun: Updated for various D7 API changes.
