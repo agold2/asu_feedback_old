@@ -8,9 +8,9 @@ feature requests.
 
 Site administrators are then able to review and process those feedback messages.
 
-For a full description visit the project page:
+For a full description of the module, visit the project page:
   http://drupal.org/project/feedback
-Bug reports, feature suggestions and latest developments:
+To submit bug reports and feature suggestions, or to track changes:
   http://drupal.org/project/issues/feedback
 
 
@@ -38,7 +38,7 @@ Bug reports, feature suggestions and latest developments:
 -- CONTACT --
 
 Current maintainers:
-* Daniel F. Kudwien (sun) - dev@unleashedmind.com
+* Daniel F. Kudwien (sun) - http://drupal.org/user/54136
 
 Note:
 Feedback module v1.x had a completely different purpose, but its features are

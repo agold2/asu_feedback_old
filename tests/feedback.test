@@ -1,0 +1,56 @@
+<?php
+// $Id$
+
+/**
+ * @file
+ * Tests for Feedback module.
+ */
+
+/**
+ * Test basic Feedback functionality.
+ */
+class FeedbackTestCase extends DrupalWebTestCase {
+  protected $profile = 'testing';
+
+  public static function getInfo() {
+    return array(
+     'name' => 'Feedback functionality',
+     'description' => 'Tests basic Feedback module functionality.',
+     'group' => 'Feedback',
+    );
+  }
+
+  function setUp() {
+    // @todo Remove soft-dependency on Block.
+    parent::setUp(array('block', 'feedback'));
+
+    $this->admin_user = $this->drupalCreateUser(array('access feedback form', 'view feedback messages'));
+    $this->web_user = $this->drupalCreateUser(array('access feedback form'));
+    $this->drupalLogin($this->web_user);
+  }
+
+  /**
+   * Test a basic feedback message.
+   */
+  function testFeedbackMessage() {
+    $message = $this->randomString();
+    $edit = array(
+      'message' => $message,
+    );
+    $this->drupalPost('node', $edit, t('Send'));
+
+    // Verify the message was recorded.
+    $this->drupalLogin($this->admin_user);
+    $this->drupalGet('admin/reports/feedback');
+    $this->assertRaw(check_plain($message), t('Message found.'));
+    $this->assertText('node', t('Originating system path found.'));
+    $this->assertLinkByHref(url('node', array('absolute' => TRUE)), 0, t('Originating absolute URL found.'));
+
+    // Verify that we can process the message.
+    $edit = array(
+      'feedback-messages[0][1]' => TRUE,
+    );
+    $this->drupalPost(NULL, $edit, t('Submit'));
+    $this->assertFieldByName('feedback-messages[1][1]', 1, t('Processed message found.'));
+  }
+}
