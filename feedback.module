@@ -7,7 +7,7 @@
  */
 
 /**
- * Implementation of hook_perm().
+ * Implements hook_permission().
  */
 function feedback_permission() {
   return array(
@@ -23,7 +23,7 @@ function feedback_permission() {
 }
 
 /**
- * Implementation of hook_theme().
+ * Implements hook_theme().
  */
 function feedback_theme() {
   return array(
@@ -34,7 +34,7 @@ function feedback_theme() {
 }
 
 /**
- * Implementation of hook_menu().
+ * Implementas hook_menu().
  */
 function feedback_menu() {
   $items['admin/reports/feedback'] = array(
@@ -49,7 +49,7 @@ function feedback_menu() {
 }
 
 /**
- * Implementation of hook_init().
+ * Implements hook_init().
  */
 function feedback_init() {
   if (user_access('access feedback form')) {
@@ -60,7 +60,7 @@ function feedback_init() {
 }
 
 /**
- * Implementation of hook_block_info().
+ * Implements hook_block_info().
  */
 function feedback_block_info() {
   $blocks['form'] = array(
@@ -70,7 +70,7 @@ function feedback_block_info() {
 }
 
 /**
- * Implementation of hook_block_view().
+ * Implements hook_block_view().
  */
 function feedback_block_view($delta = '') {
   $block = array();
@@ -87,7 +87,7 @@ function feedback_block_view($delta = '') {
 }
 
 /**
- * Implementation of hook_page_build().
+ * Implements hook_page_build().
  */
 function feedback_page_build(&$page) {
   if (user_access('access feedback form') && $_GET['q'] != 'admin/reports/feedback') {
@@ -109,7 +109,7 @@ function feedback_page_build(&$page) {
 }
 
 /**
- * Form builder function for a user feedback form.
+ * Form constructor for the feedback form.
  */
 function feedback_form($form, &$form_state) {
   $form['#attributes']['class'] = array('feedback-form');
@@ -163,6 +163,9 @@ function feedback_form($form, &$form_state) {
   return $form;
 }
 
+/**
+ * Form submission handler for feedback_form().
+ */
 function feedback_form_submit($form, &$form_state) {
   $entry = new stdClass();
   $entry->message = $form_state['values']['message'];
@@ -179,7 +182,7 @@ function feedback_form_submit($form, &$form_state) {
 }
 
 /**
- * Format a feedback entry.
+ * Returns HTML for a feedback entry.
  *
  * @param $entry
  *   A feedback object.
@@ -200,7 +203,7 @@ function feedback_format_message($entry) {
 }
 
 /**
- * Loads a feedback entry object.
+ * Loads a feedback entry from the database.
  *
  * @param $fid
  *   Integer specifying the feedback ID to load.
@@ -277,13 +280,14 @@ function feedback_save($entry) {
     if (!isset($entry->useragent)) {
       $entry->useragent = $_SERVER['HTTP_USER_AGENT'];
     }
-    drupal_write_record('feedback', $entry);
+    $status = drupal_write_record('feedback', $entry);
     module_invoke_all('feedback_insert', $entry);
   }
   else {
-    drupal_write_record('feedback', $entry, 'fid');
+    $status = drupal_write_record('feedback', $entry, 'fid');
     module_invoke_all('feedback_update', $entry);
   }
+  return $status;
 }
 
 /**
@@ -292,7 +296,7 @@ function feedback_save($entry) {
  * @param $fid
  *   A feedback entry ID.
  */
-function feedback_delete() {
+function feedback_delete($fid) {
   feedback_delete_multiple(array($fid));
 }
 
@@ -324,6 +328,8 @@ function feedback_delete_multiple($fids) {
  *   An internal Drupal path, f.e. 'user/123/edit'.
  * @return
  *   A 'masked' path, for above example 'user/%/edit'.
+ *
+ * @todo Use the untranslated patch of menu_get_item() instead.
  */
 function feedback_mask_path($path) {
   return preg_replace('@/\d+@', '/%', $path);
