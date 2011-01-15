@@ -43,11 +43,11 @@
   padding: 6px;
   background-color: #fff;
   opacity: 0.9;
-  max-width: 200px;
+  max-width: 220px;
 }
 /* IE6 doesn't support max-width. */
 * html #block-feedback-form form {
-  width: 200px;
+  width: 220px;
 }
 #block-feedback-form .feedback-help {
   margin: 0 0 0.5em;
@@ -58,18 +58,8 @@
   margin-top: 0.2em;
   font-size: 10px;
 }
-#block-feedback-form .form-textarea {
-  width: 97%;
-}
 #block-feedback-form .feedback-message {
   height: 10ex;
-}
-#block-feedback-form .resizable-textarea .grippie {
-  width: 204px;
-}
-/* IE6 fails to render textarea with full width */
-* html #block-feedback-form .resizable-textarea textarea {
-  width: 200px;
 }
 #block-feedback-form #feedback-throbber {
   height: 20px;

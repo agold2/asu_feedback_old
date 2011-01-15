@@ -2,6 +2,7 @@
 
 Feedback 7.x-2.x, xxxx-xx-xx
 ----------------------------
+by sun: Updated for new resizable textarea markup.
 #402438 by sun: Fixed minor CRUD API glitches and cleaned up code.
 #402438 by Jody Lynn, sun: Added proper CRUD API functions and hooks.
 by sun: Added basic tests.
