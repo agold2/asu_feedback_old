@@ -31,18 +31,29 @@ Drupal.behaviors.feedbackForm = {
             Drupal.feedbackFormToggle($block, true);
           }
         );
-      $block.find('form').hide()
-        .find(':input[name="ajax"]').val(1).end()
-        .submit(function() {
-          // Toggle throbber/button.
-          $('#feedback-throbber', this).addClass('throbbing');
-          $('#feedback-submit', this).fadeOut('fast', function () {
-            Drupal.feedbackFormSubmit($(this).parents('form'));
-          });
-          return false;
-        });
+      $block.find('form').hide();
       $block.show();
     });
+  }
+};
+
+/**
+ * Re-collapse the feedback form after every successful form submission.
+ */
+Drupal.behaviors.feedbackFormSubmit = {
+  attach: function (context) {
+    var $context = $(context);
+    if (!$context.is('#feedback-status-message')) {
+      return;
+    }
+    // Collapse the form.
+    $('#block-feedback-form .feedback-link').click();
+    // Blend out and remove status message.
+    window.setTimeout(function () {
+      $context.fadeOut('slow', function () {
+        $context.remove();
+      });
+    }, 3000);
   }
 };
 
@@ -59,27 +70,4 @@ Drupal.feedbackFormToggle = function ($block, enable) {
   }
 };
 
-/**
- * Collapse or uncollapse the feedback form block.
- */
-Drupal.feedbackFormSubmit = function ($form) {
-  $.post($form.get(0).action, $form.serialize(), function (data) {
-    // Collapse the form.
-    $('#block-feedback-form').find('.feedback-link').click();
-    // Display status message.
-    $form.parent().parent().append('<div id="feedback-status-message">' + data.message + '</div>');
-    // Reset form values.
-    $(':input[name="message"]', $form).val('');
-    $('#feedback-throbber', $form).removeClass('throbbing');
-    $('#feedback-submit', $form).show();
-    // Blend out status message.
-    window.setTimeout(function () {
-      $('#feedback-status-message').fadeOut('slow', function () {
-        $(this).remove();
-      });
-    }, 3000);
-  }, 'json');
-  return false;
-};
-
-})(jQuery)
+})(jQuery);

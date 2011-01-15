@@ -37,7 +37,7 @@ class FeedbackTestCase extends DrupalWebTestCase {
     $edit = array(
       'message' => $message,
     );
-    $this->drupalPost('node', $edit, t('Send'));
+    $this->drupalPost('node', $edit, t('Send feedback'));
 
     // Verify the message was recorded.
     $this->drupalLogin($this->admin_user);

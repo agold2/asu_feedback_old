@@ -116,8 +116,6 @@ function feedback_form($form, &$form_state) {
 
   // Store the path on which this form is displayed.
   $form['location'] = array('#type' => 'value', '#value' => $_GET['q']);
-  // Allow the form to be submitted via AJAX.
-  $form['ajax'] = array('#type' => 'hidden', '#default_value' => 0);
 
   $form['help'] = array(
     '#prefix' => '<div class="feedback-help">',
@@ -152,12 +150,24 @@ function feedback_form($form, &$form_state) {
     '#required' => TRUE,
     '#wysiwyg' => FALSE,
   );
-  $form['submit'] = array(
+  $form['actions'] = array(
+    '#type' => 'actions',
+    // Without clearfix, the AJAX throbber wraps in an ugly way.
+    // @todo Patch #type actions in core?
+    '#attributes' => array('class' => array('clearfix')),
+  );
+  $form['actions']['submit'] = array(
     '#type' => 'submit',
-    '#value' => t('Send'),
+    '#value' => t('Send feedback'),
     '#id' => 'feedback-submit',
-    '#prefix' => '<div id="feedback-throbber">',
-    '#suffix' => '</div>',
+    '#ajax' => array(
+      'wrapper' => 'feedback-form',
+      'callback' => 'feedback_form_ajax_callback',
+      'progress' => array(
+        'type' => 'throbber',
+        'message' => '',
+      ),
+    ),
   );
 
   return $form;
@@ -171,14 +181,47 @@ function feedback_form_submit($form, &$form_state) {
   $entry->message = $form_state['values']['message'];
   $entry->location = $form_state['values']['location'];
   feedback_save($entry);
-  $message = t('Thanks for your feedback!');
-  if ($form_state['values']['ajax']) {
-    drupal_json_output(array('message' => $message));
-    exit;
+
+  drupal_set_message(t('Thanks for your feedback!'));
+}
+
+/**
+ * AJAX callback for feedback_form() submissions.
+ */
+function feedback_form_ajax_callback($form, &$form_state) {
+  // If there was a form validation error, re-render the entire form.
+  if (!$form_state['executed']) {
+    return $form;
   }
-  else {
-    drupal_set_message($message);
-  }
+
+  // Otherwise, return a fresh copy of the form, so the user may post additional
+  // feedback.
+  // Reset the static cache of drupal_html_id().
+  // @see drupal_process_form()
+  // @see drupal_html_id()
+  $seen_ids = &drupal_static('drupal_html_id');
+  $seen_ids = array();
+
+  // Prevent the form from being processed again.
+  // @see drupal_build_form()
+  list($form, $new_form_state) = ajax_get_form();
+  $new_form_state['input'] = array();
+  drupal_process_form($form['#form_id'], $form, $new_form_state);
+
+  // Return AJAX commands in order to output the special success message.
+  // @see ajax_deliver()
+  $build = array('#type' => 'ajax');
+  $html = drupal_render($form);
+  $build['#commands'][] = ajax_command_insert(NULL, $html);
+
+  // A successful form submission normally means that there were no errors, so
+  // we only render status messages.
+  $messages = drupal_get_messages();
+  $messages += array('status' => array());
+  $messages = implode('<br />', $messages['status']);
+  $html = '<div id="feedback-status-message">' . $messages . '</div>';
+  $build['#commands'][] = ajax_command_append('#block-feedback-form', $html);
+  return $build;
 }
 
 /**
