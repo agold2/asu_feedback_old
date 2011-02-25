@@ -1,4 +1,3 @@
-; $Id$
 name = Feedback
 description = Allows site visitors and users to report issues about this site.
 package = Development
