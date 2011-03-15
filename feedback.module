@@ -234,7 +234,8 @@ function feedback_format_message($entry) {
   if (!empty($entry->useragent)) {
     if (module_exists('browscap')) {
       $browserinfo = browscap_get_browser($entry->useragent);
-      $browser = ($browserinfo['parent'] ? $browserinfo['parent'] .' / '. $browserinfo['platform'] : $browserinfo['useragent']);
+      // Browscap returns useragent but not always parent info.
+      $browser = (isset($browserinfo['parent']) ? $browserinfo['parent'] . ' / ' . $browserinfo['platform'] : $browserinfo['useragent']);
       $message .= '<div class="browserinfo">(' . check_plain($browser) . ')</div>';
     }
     else {
