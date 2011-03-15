@@ -33,7 +33,7 @@ function feedback_theme() {
 }
 
 /**
- * Implementas hook_menu().
+ * Implements hook_menu().
  */
 function feedback_menu() {
   $items['admin/reports/feedback'] = array(
