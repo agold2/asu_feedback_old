@@ -2,7 +2,7 @@
 -- SUMMARY --
 
 Feedback allows visitors and users of a site to report issues for the currently
-displayed page, whereas issues could be data or theming related bugs, or also
+displayed page, where issues could be data or theming related bugs, or also
 feature requests.
 
 Site administrators are then able to review and process those feedback messages.
@@ -13,31 +13,36 @@ To submit bug reports and feature suggestions, or to track changes:
   http://drupal.org/project/issues/feedback
 
 
--- REQUIREMENTS --
+-- INTEGRATED MODULES --
 
-* BrowsCap (optional to record user agents)
+* BrowsCap (optional, record user agents)
+* Unfuddle Feedback (optional, Unfuddle ticketing integration)
 
 
 -- INSTALLATION --
 
-* Install as usual, see http://drupal.org/node/70151 for further information.
+* Install as usual, see http://drupal.org/node/895232 for further information.
 
 
 -- CONFIGURATION --
 
-* Configure user permissions in Administer >> User management >> Permissions
-  >> Feedback.
+* Configure user permissions in Administration » People » Permissions »
+Feedback.
+* Configure fields at Administration » Configuration »  User interface »
+Feedback
 
 
 -- USAGE --
 
-* To view all feedback messages, go to Administer >> Logs >> Feedback messages
+* To view all feedback messages, go to Administration » Reports » Feedback
+messages
 
 
 -- CONTACT --
 
 Current maintainers:
 * Daniel F. Kudwien (sun) - http://drupal.org/user/54136
+* Jody Hamilton (Jody Lynn) - http://drupal.org/user/112500
 
 Note:
 Feedback module v1.x had a completely different purpose, but its features are
@@ -49,4 +54,5 @@ This project has been sponsored by:
   Specialized in consulting and planning of Drupal powered sites, UNLEASHED
   MIND offers installation, development, theming, customization, and hosting
   to get you started. Visit http://www.unleashedmind.com for more information.
+* Zivtech
 
