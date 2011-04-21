@@ -492,3 +492,29 @@ function feedback_user_delete($account) {
   feedback_delete_multiple($fids);
 }
 
+/**
+ * Implements hook_mollom_form_list().
+ */
+function feedback_mollom_form_list() {
+  $forms['feedback_form'] = array(
+    'title' => t('Feedback form'),
+    'entity' => 'feedback',
+    'report access' => array('view feedback messages'),
+  );
+  return $forms;
+}
+
+/**
+ * Implements hook_mollom_form_info().
+ */
+function feedback_mollom_form_info($form_id) {
+  if ($form_id == 'feedback_form') {
+    return array(
+      'mode' => MOLLOM_MODE_ANALYSIS,
+      'bypass access' => array('administer feedback'),
+      'elements' => array(
+        'message' => t('Message'),
+      ),
+    );
+  }
+}
