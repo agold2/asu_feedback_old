@@ -1,6 +1,10 @@
 
 Feedback 7.x-2.x, xxxx-xx-xx
 ----------------------------
+#351698 by Jody Lynn and sun: feedback is now a fieldable entity!
+#1086552 by Dru-p, Jody Lynn, sun: prevent PHP notice
+by Jody Lynn: spelling error in comment
+by The Great Git Migration: Stripping CVS keywords
 #305744 by sun: Replaced custom JS form submissions with AJAX framework.
 by sun: Updated for new resizable textarea markup.
 #402438 by sun: Fixed minor CRUD API glitches and cleaned up code.
