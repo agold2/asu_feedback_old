@@ -125,3 +125,105 @@ function feedback_admin_view_form_submit($form, &$form_state) {
   }
 }
 
+/**
+ * Form builder; The general feedback settings form.
+ *
+ * Currently this form is a necessity as a parent for the field local tasks.
+ *
+ * @ingroup forms
+ */
+function feedback_admin_settings_form($form, &$form_state) {
+  drupal_set_message(t('There are no feedback settings yet, but you can configure fields.'));
+  $form = array();
+  return $form;
+}
+
+/**
+ * Generate an array for rendering the given entry.
+ *
+ * @param $entry
+ *   A feedback entry object.
+ * @param $view_mode
+ *   View mode, e.g. 'full'.
+ * @param $langcode
+ *   (optional) A language code to use for rendering. Defaults to the global
+ *   content language of the current request.
+ *
+ * @return
+ *   An array as expected by drupal_render().
+ */
+function feedback_view($entry, $view_mode = 'full', $langcode = NULL) {
+  if (!isset($langcode)) {
+    $langcode = $GLOBALS['language_content']->language;
+  }
+
+  // Retrieve all entry fields and attach to $entry->content.
+  feedback_build_content($entry, $view_mode, $langcode);
+
+  $build = $entry->content;
+  // We don't need duplicate rendering info in entry->content.
+  unset($entry->content);
+
+  $build += array(
+    '#theme' => 'feedback_entry',
+    '#entry' => $entry,
+    '#view_mode' => $view_mode,
+    '#language' => $langcode,
+  );
+
+  // Allow modules to modify the structured entry.
+  $type = 'feedback';
+  drupal_alter(array('feedback_view', 'entity_view'), $build, $type);
+
+  return $build;
+}
+
+/**
+ * Builds a structured array representing the feedback message content.
+ *
+ * @param $entry
+ *   A feedback entry object.
+ * @param $view_mode
+ *   View mode, e.g. 'full'.
+ * @param $langcode
+ *   (optional) A language code to use for rendering. Defaults to the global
+ *   content language of the current request.
+ */
+function feedback_build_content($entry, $view_mode = 'full', $langcode = NULL) {
+  if (!isset($langcode)) {
+    $langcode = $GLOBALS['language_content']->language;
+  }
+
+  // Build fields content.
+  field_attach_prepare_view('feedback', array($entry->fid => $entry), $view_mode);
+  entity_prepare_view('feedback', array($entry->fid => $entry));
+  $entry->content = field_attach_view('feedback', $entry, $view_mode, $langcode);
+
+  module_invoke_all('feedback_view', $entry, $view_mode, $langcode);
+  module_invoke_all('entity_view', $entry, 'feedback', $view_mode, $langcode);
+}
+
+/**
+ * Process variables for feedback-entry.tpl.php.
+ *
+ * The $variables array contains the following arguments:
+ * - $entry
+ *
+ * @see feedback-entry.tpl.php
+ */
+function template_preprocess_feedback_entry(&$variables) {
+  foreach (element_children($variables['elements']) as $key) {
+    $variables['content'][$key] = $variables['elements'][$key];
+  }
+
+  $entry = $variables['elements']['#entry'];
+
+  // Preprocess fields.
+  field_attach_preprocess('feedback', $entry, $variables['elements'], $variables);
+
+  $variables['location'] = l($entry->location, $entry->url);
+  $variables['date'] = format_date($entry->timestamp, 'small');
+  $variables['account'] = format_username($entry);
+  $variables['message'] = feedback_format_message($entry);
+}
+

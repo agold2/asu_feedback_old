@@ -2,4 +2,6 @@ name = Feedback
 description = Allows site visitors and users to report issues about this site.
 package = Development
 core = 7.x
+configure = admin/config/user-interface/feedback
+files[] = feedback.controller.inc
 files[] = tests/feedback.test
