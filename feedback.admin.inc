@@ -10,8 +10,8 @@
  */
 function feedback_admin_view_form($form, &$form_state) {
   $status_headings = array(
-    0 => t('Open feedback messages'),
-    1 => t('Processed feedback messages'),
+    FEEDBACK_OPEN => t('Open feedback messages'),
+    FEEDBACK_PROCESSED => t('Processed feedback messages'),
   );
   $form['#feedback_header'] = array(
     array(),
@@ -33,7 +33,7 @@ function feedback_admin_view_form($form, &$form_state) {
   $query->join('users', 'u', 'f.uid = u.uid');
   $query->fields('f')
     ->limit(50);
-  foreach (array(0, 1) as $status) {
+  foreach (array(FEEDBACK_OPEN, FEEDBACK_PROCESSED) as $status) {
     $status_query = clone $query;
     $fids = $status_query->element($status)
       ->condition('f.status', $status)
@@ -50,7 +50,7 @@ function feedback_admin_view_form($form, &$form_state) {
       foreach ($entries as $fid => $entry) {
         $form['feedback-messages'][$status][$fid] = array(
           '#type' => 'checkbox',
-          '#return_value' => 1,
+          '#return_value' => FEEDBACK_PROCESSED,
           '#default_value' => FALSE,
         );
         $form['feedback-messages'][$status][$fid]['location'] = array('#markup' => l(truncate_utf8($entry->location, 32, FALSE, TRUE), $entry->url));
@@ -118,7 +118,7 @@ function feedback_admin_view_form_submit($form, &$form_state) {
     if (!empty($values)) {
       $entries = feedback_load_multiple(array_keys($values));
       foreach ($entries as $fid => $entry) {
-        $entry->status = ($status == 0 ? 1 : 0);
+        $entry->status = ($status == FEEDBACK_OPEN ? FEEDBACK_PROCESSED : FEEDBACK_OPEN);
         feedback_save($entry);
       }
     }

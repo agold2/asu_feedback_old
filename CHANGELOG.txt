@@ -1,6 +1,7 @@
 
 Feedback 7.x-2.x, xxxx-xx-xx
 ----------------------------
+#1014726 by Jody Lynn: Changed Add constants for feedback status codes.
 #775322 by Jody Lynn: Mollom integration
 #351698 by Jody Lynn and sun: feedback is now a fieldable entity!
 #1086552 by Dru-p, Jody Lynn, sun: prevent PHP notice

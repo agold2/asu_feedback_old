@@ -6,6 +6,16 @@
  */
 
 /**
+ * Open state (unprocessed) for feedback entries.
+ */
+define('FEEDBACK_OPEN', 0);
+
+/**
+ * Processed state for feedback entries.
+ */
+define('FEEDBACK_PROCESSED', 1);
+
+/**
  * Implements hook_theme().
  */
 function feedback_theme() {
@@ -196,10 +206,10 @@ function feedback_form($form, &$form_state) {
   );
   if (user_access('view feedback messages')) {
     if (arg(0) != 'node') {
-      $feedbacks = feedback_load_multiple(array(), array('status' => 0, 'location_masked' => feedback_mask_path($_GET['q'])));
+      $feedbacks = feedback_load_multiple(array(), array('status' => FEEDBACK_OPEN, 'location_masked' => feedback_mask_path($_GET['q'])));
     }
     else {
-      $feedbacks = feedback_load_multiple(array(), array('status' => 0, 'location' => $_GET['q']));
+      $feedbacks = feedback_load_multiple(array(), array('status' => FEEDBACK_OPEN, 'location' => $_GET['q']));
     }
     if ($feedbacks) {
       $rows = '';
