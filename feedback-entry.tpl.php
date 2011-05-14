@@ -23,7 +23,7 @@
   </div>
   <div class="field">
     <div class="field-label"><?php print t('Message'); ?>:&nbsp;</div>
-    <?php print $message; ?>
+    <?php print render($message); ?>
   </div>
 
   <?php print render($content); ?>

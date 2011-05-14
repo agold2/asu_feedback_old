@@ -113,6 +113,13 @@ function feedback_menu() {
     'access arguments' => array('view feedback messages'),
     'file' => 'feedback.admin.inc',
   );
+  $items['admin/reports/feedback/%feedback/delete'] = array(
+    'title' => 'Delete feedback entry',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('feedback_delete_confirm', 3),
+    'access arguments' => array('view feedback messages'),
+    'file' => 'feedback.admin.inc',
+  );
   $items['admin/config/user-interface/feedback'] = array(
     'title' => 'Feedback',
     'description' => 'Administer feedback settings.',
@@ -218,6 +225,9 @@ function feedback_match_path($patterns) {
 
 /**
  * Form constructor for the feedback form.
+ *
+ * @see feedback_form_submit()
+ * @ingroup forms
  */
 function feedback_form($form, &$form_state) {
   $form['#attributes']['class'] = array('feedback-form');
@@ -238,16 +248,19 @@ function feedback_form($form, &$form_state) {
       $feedbacks = feedback_load_multiple(array(), array('status' => FEEDBACK_OPEN, 'location' => $_GET['q']));
     }
     if ($feedbacks) {
-      $rows = '';
-      foreach ($feedbacks as $feedback) {
-        $rows .= '<div class="feedback-submitted">' . format_username($feedback) . ' ' . format_date($feedback->timestamp, 'small') . ':</div>';
-        $rows .= '<div class="feedback-body">'. feedback_format_message($feedback) .'</div>';
-      }
       $form['messages'] = array(
         '#prefix' => '<div class="feedback-messages">',
-        '#markup' => $rows,
         '#suffix' => '</div>',
       );
+      foreach ($feedbacks as $fid => $feedback) {
+        $form['messages'][$fid]['#feedback'] = $feedback;
+        $form['messages'][$fid]['submitted'] = array('#markup' => t('!feedback-author !feedback-date:', array('!feedback-author' => format_username($feedback), '!feedback-date' => format_date($feedback->timestamp, 'small'))));
+        $form['messages'][$fid]['submitted']['#prefix'] = '<div class="feedback-submitted">';
+        $form['messages'][$fid]['submitted']['#suffix'] = '</div>';
+        $form['messages'][$fid]['body'] = feedback_format_message($feedback);
+        $form['messages'][$fid]['body']['#prefix'] = '<div class="feedback-body">';
+        $form['messages'][$fid]['body']['#suffix'] = '</div>';
+      }
     }
   }
   $form['message'] = array(
@@ -358,9 +371,14 @@ function feedback_format_message($entry) {
   }
   $uri = entity_uri('feedback', $entry);
   if ($uri['path'] != $_GET['q']) {
-    $message .= l("view full", $uri['path']);
+    $links['view'] = array('title' => t('view'), 'href' => $uri['path']);
   }
-  return $message;
+  else {
+    $links['delete'] = array('title' => t('delete'), 'href' => $uri['path'] . '/delete');
+  }
+  $elements['message'] = array('#markup' => $message);
+  $elements['links'] = array('#theme' => 'links__feedback_message', '#links' => $links);
+  return $elements;
 }
 
 /**

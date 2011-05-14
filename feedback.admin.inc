@@ -19,6 +19,7 @@ function feedback_admin_view_form($form, &$form_state) {
     array('data' => t('Date'), 'field' => 'f.timestamp'),
     array('data' => t('User'), 'field' => 'u.name'),
     t('Message'),
+    t('Delete'),
   );
   // Hack to prevent pager_query() from issuing PHP notices.
   if (!isset($_GET['page'])) {
@@ -56,7 +57,8 @@ function feedback_admin_view_form($form, &$form_state) {
         $form['feedback-messages'][$status][$fid]['location'] = array('#markup' => l(truncate_utf8($entry->location, 32, FALSE, TRUE), $entry->url));
         $form['feedback-messages'][$status][$fid]['date'] = array('#markup' => format_date($entry->timestamp, 'small'));
         $form['feedback-messages'][$status][$fid]['user'] = array('#markup' => format_username($entry));
-        $form['feedback-messages'][$status][$fid]['message'] = array('#markup' => feedback_format_message($entry));
+        $form['feedback-messages'][$status][$fid]['message'] = feedback_format_message($entry);
+        $form['feedback-messages'][$status][$fid]['delete'] = array('#type' => 'link', '#title' => t('delete'), '#href' => "admin/reports/feedback/$fid/delete");
       }
     }
   }
@@ -86,12 +88,13 @@ function theme_feedback_admin_view_form($variables) {
         drupal_render($entry['date']),
         drupal_render($entry['user']),
         drupal_render($entry['message']),
+        drupal_render($entry['delete']),
       );
       // Render the checkbox.
       $rows[count($rows) - 1][0] = drupal_render($entry);
     }
     if (empty($rows)) {
-      $rows[] = array(array('data' => t('No feedback entries available.'), 'colspan' => 5));
+      $rows[] = array(array('data' => t('No feedback entries available.'), 'colspan' => 6));
     }
     // Inject the table.
     $item['messages'] = array(
@@ -229,3 +232,31 @@ function template_preprocess_feedback_entry(&$variables) {
   $variables['message'] = feedback_format_message($entry);
 }
 
+/**
+ * Form constructor for the feedback delete confirmation form.
+ *
+ * @param $entry
+ *   The feedback entry to delete.
+ *
+ * @see feedback_delete_confirm_submit()
+ * @ingroup forms
+ */
+function feedback_delete_confirm($form, &$form_state, $entry) {
+  $form['fid'] = array('#type' => 'value', '#value' => $entry->fid);
+  $output = confirm_form($form,
+    t('Are you sure you want to delete the feedback entry?'),
+    'admin/reports/feedback',
+    NULL,
+    t('Delete'));
+  return $output;
+}
+
+/**
+ * Process feedback_delete_confirm() form submissions.
+ */
+function feedback_delete_confirm_submit($form, &$form_state) {
+  feedback_delete($form_state['values']['fid']);
+  drupal_set_message(t('The feedback entry was deleted.'));
+
+  $form_state['redirect'] = 'admin/reports/feedback';
+}

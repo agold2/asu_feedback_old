@@ -1,6 +1,8 @@
 
 Feedback 7.x-2.x, xxxx-xx-xx
 ----------------------------
+#323506 by Jody Lynn, tim.plunkett | zilla: Added Allow to delete items.
+#470316 by Jody Lynn | smk-ka: Added Visibility settings.
 #1014726 by Jody Lynn: Changed Add constants for feedback status codes.
 #775322 by Jody Lynn: Mollom integration
 #351698 by Jody Lynn and sun: feedback is now a fieldable entity!

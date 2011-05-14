@@ -67,4 +67,26 @@ class FeedbackTestCase extends DrupalWebTestCase {
      $this->drupalGet('user');
      $this->assertNoRaw('<span class="feedback-link">' . t('Feedback') . '</span>', t('Feedback form not shown.'));
    }
+
+ /**
+  * Test feedback deletion.
+  */
+  function testFeedbackDelete() {
+    $this->drupalLogin($this->admin_user);
+    $message = $this->randomString();
+    $edit = array(
+      'message' => $message,
+    );
+    $this->drupalPost('node', $edit, t('Send feedback'));
+
+    // Verify a delete link is shown.
+    $this->drupalGet('admin/reports/feedback');
+    $this->assertLinkByHref('admin/reports/feedback/1/delete');
+
+    // Verify deletion.
+    $this->drupalPost('admin/reports/feedback/1/delete', array(), t('Delete'));
+    $this->assertRaw(t('The feedback entry was deleted'), t('Feedback deletion message shown.'));
+    $this->assertNoLinkByHref('admin/reports/feedback/1/delete');
+    $this->assertNoRaw(check_plain($message), t('Message not found.'));
+  }
 }
