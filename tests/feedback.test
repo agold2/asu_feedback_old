@@ -23,7 +23,7 @@ class FeedbackTestCase extends DrupalWebTestCase {
     // @todo Remove soft-dependency on Block.
     parent::setUp(array('block', 'feedback'));
 
-    $this->admin_user = $this->drupalCreateUser(array('access feedback form', 'view feedback messages'));
+    $this->admin_user = $this->drupalCreateUser(array('access feedback form', 'view feedback messages', 'administer feedback'));
     $this->web_user = $this->drupalCreateUser(array('access feedback form'));
     $this->drupalLogin($this->web_user);
   }
@@ -52,4 +52,19 @@ class FeedbackTestCase extends DrupalWebTestCase {
     $this->drupalPost(NULL, $edit, t('Submit'));
     $this->assertFieldByName('feedback-messages[1][1]', 1, t('Processed message found.'));
   }
+
+  /**
+   * Test visibility settings.
+   */
+   function testFeedbackVisibility() {
+     $this->drupalLogin($this->admin_user);
+     $this->drupalGet('user');
+     $this->assertRaw('<span class="feedback-link">' . t('Feedback') . '</span>', t('Feedback form shown.'));
+     $edit = array(
+       'feedback_excluded_paths' => 'user*',
+     );
+     $this->drupalPost('admin/config/user-interface/feedback', $edit, t('Save configuration'));
+     $this->drupalGet('user');
+     $this->assertNoRaw('<span class="feedback-link">' . t('Feedback') . '</span>', t('Feedback form not shown.'));
+   }
 }

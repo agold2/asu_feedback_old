@@ -158,7 +158,7 @@ function feedback_block_view($delta = '') {
   $block = array();
   switch($delta) {
     case 'form':
-      if (!user_access('access feedback form') || $_GET['q'] == 'admin/reports/feedback') {
+      if (!user_access('access feedback form')) {
         break;
       }
       $block['subject'] = '<span class="feedback-link">' . t('Feedback') . '</span>';
@@ -172,7 +172,7 @@ function feedback_block_view($delta = '') {
  * Implements hook_page_build().
  */
 function feedback_page_build(&$page) {
-  if (user_access('access feedback form') && $_GET['q'] != 'admin/reports/feedback') {
+  if (user_access('access feedback form') && !feedback_match_path(variable_get('feedback_excluded_paths', 'admin/reports/feedback'))) {
     $block = (object) feedback_block_view('form');
     $block->module = 'feedback';
     $block->delta = 'form';
@@ -188,6 +188,32 @@ function feedback_page_build(&$page) {
 
     $page['page_bottom']['feedback'] = $build;
   }
+}
+
+/**
+ * Check if the current path matches any pattern in a set of patterns.
+ *
+ * @param $patterns
+ *   String containing a set of patterns separated by \n, \r or \r\n.
+ *
+ * @return
+ *   Boolean value: TRUE if the current path or alias matches a pattern.
+ */
+function feedback_match_path($patterns) {
+  // Convert path to lowercase. This allows comparison of the same path
+  // with different case. Ex: /Page, /page, /PAGE.
+  $patterns = drupal_strtolower($patterns);
+
+  // Convert the current path to lowercase.
+  $path = drupal_strtolower(drupal_get_path_alias($_GET['q']));
+
+  // Compare the lowercase internal and lowercase path alias (if any).
+  $page_match = drupal_match_path($path, $patterns);
+  if ($path != $_GET['q']) {
+    $page_match = $page_match || drupal_match_path($_GET['q'], $patterns);
+  }
+
+  return $page_match;
 }
 
 /**

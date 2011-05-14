@@ -128,14 +128,16 @@ function feedback_admin_view_form_submit($form, &$form_state) {
 /**
  * Form builder; The general feedback settings form.
  *
- * Currently this form is a necessity as a parent for the field local tasks.
- *
  * @ingroup forms
  */
 function feedback_admin_settings_form($form, &$form_state) {
-  drupal_set_message(t('There are no feedback settings yet, but you can configure fields.'));
-  $form = array();
-  return $form;
+  $form['feedback_excluded_paths'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Paths to exclude from feedback display'),
+    '#default_value' => variable_get('feedback_excluded_paths', 'admin/reports/feedback'),
+    '#description' => t("Specify pages by using their paths. Enter one path per line. The '*' character is a wildcard. Example paths are %blog for the blog page and %blog-wildcard for every personal blog. %front is the front page.", array('%blog' => 'blog', '%blog-wildcard' => 'blog/*', '%front' => '<front>')),
+  );
+  return system_settings_form($form);
 }
 
 /**
