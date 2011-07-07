@@ -1,6 +1,7 @@
 
 Feedback 7.x-2.x, xxxx-xx-xx
 ----------------------------
+#1027786 by Jody Lynn, sun: Removed soft-dependency on Block module.
 #323506 by Jody Lynn, tim.plunkett | zilla: Added Allow to delete items.
 #470316 by Jody Lynn | smk-ka: Added Visibility settings.
 #1014726 by Jody Lynn: Changed Add constants for feedback status codes.

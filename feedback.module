@@ -28,6 +28,10 @@ function feedback_theme() {
       'template' => 'feedback-entry',
       'file' => 'feedback.admin.inc',
     ),
+    'feedback_form_display' => array(
+      'template' => 'feedback-form-display',
+      'variables' => array('title' => NULL, 'content' => NULL),
+    ),
   );
 }
 
@@ -149,51 +153,15 @@ function feedback_init() {
 }
 
 /**
- * Implements hook_block_info().
- */
-function feedback_block_info() {
-  $blocks['form'] = array(
-    'info' => t('Feedback form'),
-  );
-  return $blocks;
-}
-
-/**
- * Implements hook_block_view().
- */
-function feedback_block_view($delta = '') {
-  $block = array();
-  switch($delta) {
-    case 'form':
-      if (!user_access('access feedback form')) {
-        break;
-      }
-      $block['subject'] = '<span class="feedback-link">' . t('Feedback') . '</span>';
-      $block['content'] = drupal_get_form('feedback_form');
-      break;
-  }
-  return $block;
-}
-
-/**
  * Implements hook_page_build().
  */
 function feedback_page_build(&$page) {
   if (user_access('access feedback form') && !feedback_match_path(variable_get('feedback_excluded_paths', 'admin/reports/feedback'))) {
-    $block = (object) feedback_block_view('form');
-    $block->module = 'feedback';
-    $block->delta = 'form';
-    $block->region = 'footer';
-    $build = $block->content;
-    unset($block->content);
-    $build += array(
-      '#block' => $block,
-      '#weight' => 0,
-      '#sorted' => TRUE,
+    $page['page_bottom']['feedback'] = array(
+      '#theme' => 'feedback_form_display',
+      '#title' => t('Feedback'),
+      '#content' => drupal_get_form('feedback_form'),
     );
-    $build['#theme_wrappers'][] ='block';
-
-    $page['page_bottom']['feedback'] = $build;
   }
 }
 
