@@ -540,3 +540,13 @@ function feedback_mollom_form_info($form_id) {
     );
   }
 }
+
+/**
+ * Implements hook_views_api();
+ */
+function feedback_views_api() {
+  return array(
+    'api' => 3.0,
+    'path' => drupal_get_path('module', 'feedback') . '/views',
+  );
+}

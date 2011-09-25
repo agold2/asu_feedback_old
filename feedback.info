@@ -4,4 +4,5 @@ package = Development
 core = 7.x
 configure = admin/config/user-interface/feedback
 files[] = feedback.controller.inc
+files[] = views/feedback_handler_field_feedback_link.inc
 files[] = tests/feedback.test

@@ -18,6 +18,7 @@ To submit bug reports and feature suggestions, or to track changes:
 * BrowsCap (optional, record user agents)
 * Unfuddle Feedback (optional, Unfuddle ticketing integration)
 * Mollom (optional, spam prevention)
+* Views (optional)
 
 
 -- INSTALLATION --
