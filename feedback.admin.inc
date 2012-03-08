@@ -62,7 +62,12 @@ function feedback_admin_view_form($form, &$form_state) {
       }
     }
   }
-  $form['submit'] = array('#type' => 'submit', '#value' => t('Submit'));
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Update'),
+    // Hide the submit button, if there are no entries at all.
+    '#access' => !empty($entries),
+  );
   return $form;
 }
 
