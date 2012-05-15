@@ -222,7 +222,7 @@ function feedback_form($form, &$form_state) {
       );
       foreach ($feedbacks as $fid => $feedback) {
         $form['messages'][$fid]['#feedback'] = $feedback;
-        $form['messages'][$fid]['submitted'] = array('#markup' => t('!feedback-author !feedback-date:', array('!feedback-author' => format_username($feedback), '!feedback-date' => format_date($feedback->timestamp, 'small'))));
+        $form['messages'][$fid]['submitted'] = array('#markup' => t('@feedback-author !feedback-date:', array('@feedback-author' => format_username($feedback), '!feedback-date' => format_date($feedback->timestamp, 'small'))));
         $form['messages'][$fid]['submitted']['#prefix'] = '<div class="feedback-submitted">';
         $form['messages'][$fid]['submitted']['#suffix'] = '</div>';
         $form['messages'][$fid]['body'] = feedback_format_message($feedback);
