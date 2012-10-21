@@ -64,6 +64,8 @@ function feedback_entity_info() {
           'custom settings' => FALSE,
         ),
       ),
+      // Disable Metatags (metatag) module's entity form additions.
+      'metatags' => FALSE,
     ),
   );
 
