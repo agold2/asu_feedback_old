@@ -30,9 +30,10 @@
   position: absolute;
 }
 #block-feedback-form .feedback-link {
-  padding: 0.3em 0;
-  text-align: right;
-  font-size: 12px;
+  background: url("images/feedback.jpg") no-repeat scroll left top transparent;
+  display: block;
+  height: 27px;
+  width: 90px;   
 }
 #block-feedback-form .feedback-link * {
   display: inline;

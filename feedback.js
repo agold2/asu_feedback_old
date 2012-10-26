@@ -21,7 +21,6 @@ Drupal.behaviors.feedbackForm = {
     $('#block-feedback-form', context).once('feedback', function () {
       var $block = $(this);
       $block.find('span.feedback-link')
-        .prepend('<span id="feedback-form-toggle">[ + ]</span> ')
         .css('cursor', 'pointer')
         .toggle(function () {
             Drupal.feedbackFormToggle($block, false);
